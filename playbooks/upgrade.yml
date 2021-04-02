@@ -1,0 +1,17 @@
+---
+- name: apt-upgrade
+  hosts: servers
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: apt | autoclean autoremove
+      apt:
+        autoclean: yes
+        autoremove: yes
+    - name: apt | upgrade
+      apt:
+        upgrade: 'True'
+        update_cache: yes
+        cache_valid_time: 3600
+      retries: 5
+      delay: 5

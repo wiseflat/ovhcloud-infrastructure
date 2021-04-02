@@ -1,0 +1,11 @@
+---
+- name: check-cloudinit
+  hosts: all
+  gather_facts: no
+  become: no
+  tasks:
+    - name: wait_for | until cloudinit is finished
+      wait_for:
+        path: /tmp/cloudinit
+        sleep: 10
+        timeout: 600

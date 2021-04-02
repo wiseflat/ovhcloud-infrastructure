@@ -1,0 +1,30 @@
+packer.retry
+
+# Terraform files
+.terraform
+terraform.tfstate
+terraform.tfvars
+*.tfstate*
+crash.log
+.terraform.lock.hcl
+
+# terragrunt files
+# env/*
+.terragrunt-cache
+
+# OS X files
+.history
+.DS_Store
+
+# creadentials
+openrc
+ovhrc
+id_rsa*
+*clouds.yaml
+
+#editors
+*~
+.\#*
+
+env/*
+!env/demo

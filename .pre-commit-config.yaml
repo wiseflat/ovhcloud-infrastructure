@@ -1,0 +1,16 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: master
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: debug-statements
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: master
+    hooks:
+      - id: terraform_fmt
+        args:
+          - terraform

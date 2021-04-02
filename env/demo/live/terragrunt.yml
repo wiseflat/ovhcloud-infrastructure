@@ -1,0 +1,17 @@
+---
+project_dir: /home/ansible/ovhcloud-infrastructure
+working_dir: "{{ project_dir }}/env/develop"
+ssh_public_key: "{{ working_dir }}/ssh/id_rsa.pub"
+playbook_path: "{{ project_dir }}/playbooks"
+
+vrack_id: pn-xxxx
+
+restricted_ip:
+  - x.x.x.x/32
+
+restricted_port:
+  - 22
+
+zone:
+  root: domain.com
+  subdomain: www
