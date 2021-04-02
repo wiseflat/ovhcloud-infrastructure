@@ -102,10 +102,9 @@ This will be used to create your openstack keypair.
 
 ```yaml
 ---
-project_dir: /home/ansible/ovhcloud-infrastructure
-working_dir: "{{ project_dir }}/env/develop"
-ssh_public_key: "{{ working_dir }}/ssh/id_rsa.pub"
-playbook_path: "{{ project_dir }}/playbooks"
+working_dir: /home/ansible/ovhcloud-infrastructure/env/develop
+ssh_public_key: /home/ansible/ovhcloud-infrastructure/env/develop/ssh/id_rsa.pub
+playbook_path: /home/ansible/ovhcloud-infrastructure/playbooks
 
 vrack_id: pn-xxxx
 
