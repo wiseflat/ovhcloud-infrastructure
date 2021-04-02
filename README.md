@@ -171,16 +171,6 @@ Setting `frontends = 1` will create 1 instance per region.
   }
 ```
 
-Maybe, you will have to override the `regions` variable because of a localization restriction (check it on [horizon](https://horizon.cloud.ovh.net))
-
-```
-  # regions = [
-  #   "DE1",
-  #   "UK1",
-  #   "GRA7"
-  # ]
-```
-
 ```sh
 /home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt plan
 /home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt apply
@@ -400,7 +390,7 @@ Then, you are good to go ! All your instances are ready to be configured with yo
 
 In this demo, we will install nginx everywhere: 
 
-- Frontends will act as reverse proxy, the will forward requests to backend instances.
+- Frontends will act as reverse proxy, they will forward requests to backend instances.
 - Backends will answer their hostnames to check if load balancing is working.
 
 </p>

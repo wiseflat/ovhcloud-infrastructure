@@ -1,4 +1,4 @@
-# Terraform monoregion cluster module
+# Terraform multiregion cluster module
 
 ## Multiregion with one frontend per region and multiple backend instances
 
