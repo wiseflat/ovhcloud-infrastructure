@@ -96,8 +96,8 @@ This will be used to create your openstack keypair.
 ```
 
 - Adapt paths to match the absolute path of your project.
-- Vrack ID is the one you created above from the Control Panel
-- Restricted Ip address filters ssh port 22, so add your public ip address for now.
+- Vrack ID is the one you created above from the Control Panel.
+- SSH port is filtered by default, so just add your public ip address to authorize yourself.
 - DNS Zone is used to create your ssh config file. DNS record are not created, it's just for human readable purpose and Ansible connectivity.
 
 ```yaml
@@ -398,18 +398,25 @@ Playbook run took 0 days, 0 hours, 0 minutes, 37 seconds
 
 Then, you are good to go ! All your instances are ready to be configured with your configuration management tool (puppet, ansible, chef, etc).
 
+In this demo, we will install nginx everywhere: 
+
+- Frontends will act as reverse proxy, the will forward requests to backend instances.
+- Backends will answer their hostnames to check if load balancing is working.
+
 </p>
 </details>
 
 <details>
-<summary>Deploy some nginx configurations to see if everything is working like a charm</summary>
+<summary>Deploy the demo</summary>
 <p>
 
 ```sh
 /home/ansible/ovhcloud-infrastructure/env/develop$ ansible-playbook playbooks/nginx.yml
 ```
 
-You can find IPs address of your instances in you ssh configuration file.
+You can find your instances IPs address in you ssh configuration file.
+
+UK1 frontend is load balancing requests to the internal network and to the vrack network !
 
 ```
 $ curl http://54.37.4.210/
@@ -420,7 +427,11 @@ $ curl http://54.37.4.210/
 backend-vrack1.uk1.multivrack.www.domain.com
 $ curl http://54.37.4.210/
 backend-vrack1.de1.multivrack.www.domain.com
+```
 
+GRA5 frontend is load balancing requests to the internal network and to the vrack network !
+
+```
 $ curl http://51.68.41.230/
 backend1.gra5.multivrack.www.domain.com
 $ curl http://51.68.41.230/
@@ -429,7 +440,11 @@ $ curl http://51.68.41.230/
 backend-vrack1.uk1.multivrack.www.domain.com
 $ curl http://51.68.41.230/
 backend-vrack1.de1.multivrack.www.domain.com
+```
 
+DE1 frontend is load balancing requests to the internal network and to the vrack network !
+
+```
 $ curl http://135.125.134.167/
 backend1.de1.multivrack.www.domain.com
 $ curl http://135.125.134.167/
@@ -439,14 +454,17 @@ backend-vrack1.uk1.multivrack.www.domain.com
 $ curl http://135.125.134.167/
 backend-vrack1.de1.multivrack.www.domain.com
 ```
+
+All good !
+
 </p>
 </details>
 
 ## Last step : destroy everything
 
-Setting `backends = 0` will destroy all instances connected to the Internal network.
-Setting `backends_vrack = 0` will destroy all instances connected the vrack network.
-Setting `frontends = 0` will destroy all frontend instances.
+* Setting `backends = 0` will destroy all instances connected to the Internal network.
+* Setting `backends_vrack = 0` will destroy all instances connected the vrack network.
+* Setting `frontends = 0` will destroy all frontend instances.
 
 Do it smoothly. It takes a lot of CPU ;-)
 
@@ -462,6 +480,6 @@ Finaly, destroy all other terraform resources
 
 # Troubleshooting
 
-* When you increase (or reduce) the number of instances, do it smoothly. It takes a lot of CPU ;-)
+* When you increase (or reduce) the number of instances, do it smoothly. It takes a lot of CPU.
 * If terragrunt fails, it is most of the time a network issue. Just launch `terragrunt apply` again.
 * If an Ansible playbook fails, same resolution.
