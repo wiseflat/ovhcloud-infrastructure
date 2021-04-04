@@ -1,0 +1,82 @@
+---
+- name: Create custom image
+  hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: apt | remove unused packages
+      apt:
+        name: "{{ packages }}"
+        state: absent
+        purge: yes
+        autoclean: yes
+        autoremove: yes
+      vars:
+        packages:
+          - lxd
+          - lxc-common
+          - lxcfs
+          - xxd
+          - dnsmasq-base
+          - snapd
+          - snap-confine
+          - lxd-client
+          - parted
+          - screen
+          - manpages
+          - manpages-dev
+          - eject
+          - dosfstools
+          - pastebinit
+          - ufw
+          - sosreport
+          - python2.7-minimal
+          - xfsprogs
+          - tmux
+          - cryptsetup
+          - cryptsetup-bin
+          - popularity-contest
+          - ubuntu-advantage-tools
+      register: apt_action
+      retries: 100
+      until: apt_action is success or ('Failed to lock apt for exclusive operation' not in apt_action.msg and '/var/lib/dpkg/lock' not in apt_action.msg)
+
+    - name: apt | upgrade all packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+      retries: 3
+      delay: 2
+
+    - name: Install specific packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        purge: yes
+        autoclean: yes
+        autoremove: yes
+      vars:
+        packages:
+          - python3-minimal
+          - python3-pip
+          - git
+
+    - name: Clean up image
+      apt:
+        autoclean: yes
+        autoremove: yes
+
+    - name: Disable prompt to sudo users
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo\s'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+
+    - name: Create ansible facts.d directory
+      file:
+        path: "/etc/ansible/facts.d"
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: 0755
