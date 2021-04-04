@@ -1,0 +1,42 @@
+{
+  "variables": {
+    "identity_endpoint": "{{env `OS_AUTH_URL`}}",
+    "region": "{{env `OS_REGION_NAME`}}",
+    "ext_net_id": "{{env `NETWORK_ID`}}",
+    "flavor_name": "s1-2",
+    "tag": "latest",
+    "image_name": "custom-Ubuntu-2004",
+    "source_image_name": "Ubuntu 20.04",
+    "ssh_user": "ubuntu",
+    "name": "ubuntu2004"
+  },
+  "builders": [
+    {
+      "type": "openstack",
+      "name": "{{user `name`}}",
+      "identity_endpoint": "{{user `identity_endpoint`}}",
+      "region": "{{user `region`}}",
+      "ssh_username": "{{user `ssh_user`}}",
+      "image_name": "{{user `image_name`}}",
+      "source_image_name": "{{user `source_image_name`}}",
+      "ssh_ip_version": "4",
+      "flavor": "{{user `flavor_name`}}",
+      "networks": [
+        "{{user `ext_net_id`}}"
+      ],
+      "metadata": {
+        "tag": "{{user `tag`}}"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "user": "{{user `ssh_user`}}",
+      "playbook_file": "./ubuntu-focal.yml",
+      "extra_arguments": [
+        "-e ansible_python_interpreter=/usr/bin/python3"
+      ]
+    }
+  ]
+}

@@ -31,6 +31,8 @@ This repository contains resources to deploy a generic cloud platform on top of 
 - Create an [OpenStack's RC file](https://docs.ovh.com/us/en/public-cloud/configure_user_access_to_horizon/) on your Public Cloud project.
 - Create an OVH [token](https://api.ovh.com/createToken/?GET=/*&POST=/*&PUT=/*&DELETE=/* ) (tokens must be added to you openstack's rc file)
 
+- [Packer](https://www.packer.io/downloads.html) to build your own openstack images
+
 # Demo
 
 A fully fonctionnal demo environments will help you to deploy multiple infrastructures:
