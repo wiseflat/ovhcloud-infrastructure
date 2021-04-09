@@ -4,7 +4,7 @@ Create a custom OpenStack image with Packer
 # Prerequisites
 
 - jq
-- python3-openstackclient 
+- python3-openstackclient
 
 
 # Packer configuration
@@ -44,7 +44,7 @@ Let's find some needed ID. In this example we will build an Ubuntu 20.04 image o
 /home/ansible/ovhcloud-infrastructure/packer$ packer build packer.json
 ```
 
-Once the image is created, you can check it with: 
+Once the image is created, you can check it with:
 
 ```sh
 /home/ansible/ovhcloud-infrastructure/packer$ openstack image list | grep 'custom-Ubuntu-2004'
