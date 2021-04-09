@@ -119,6 +119,13 @@ restricted_port:
 zone:
   root: domain.com
   subdomain: www
+
+domains: []
+  # - zone: domain.com
+  #   subdomain: www
+  #   target: public_ip
+  #   fieldtype: A
+  #   ttl: 60
 ```
 
 ## First step
