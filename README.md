@@ -390,7 +390,7 @@ Playbook run took 0 days, 0 hours, 0 minutes, 37 seconds
 
 Then, you are good to go ! All your instances are ready to be configured with your configuration management tool (puppet, ansible, chef, etc).
 
-In this demo, we will install nginx everywhere: 
+In this demo, we will install nginx everywhere:
 
 - Frontends will act as reverse proxy, they will forward requests to backend instances.
 - Backends will answer their hostnames to check if load balancing is working.

@@ -15,6 +15,12 @@ resource "ovh_vrack_cloudproject" "attach" {
   project_id = var.project_id
 }
 
+module "domains" {
+  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//domain"
+
+  domains = var.domains
+}
+
 module "region" {
   source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//region"
 

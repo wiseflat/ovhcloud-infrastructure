@@ -27,6 +27,8 @@ inputs = {
   #   "UK1"
   # ]
 
+  domains = local.project.domains
+
   frontends = {
     lan_net = [
       "10.0.1.0/24"
