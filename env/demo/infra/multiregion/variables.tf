@@ -74,6 +74,18 @@ variable "zone" {
   })
 }
 
+variable "domains" {
+  description = "id of the openstack project"
+  type = list(object({
+    zone      = string
+    subdomain = string
+    target    = string
+    fieldtype = string
+    ttl       = number
+  }))
+  default = []
+}
+
 variable "frontends" {
   description = "Frontend definition"
   type = object({
