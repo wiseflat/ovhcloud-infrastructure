@@ -27,6 +27,12 @@ variable "public_subnet" {
   type        = string
 }
 
+variable "ip_address_offset" {
+  description = "IP address offset"
+  type        = number
+  default     = 0
+}
+
 ## Vrack
 
 variable "vrack_net" {
@@ -41,6 +47,11 @@ variable "vrack_fixed_ip" {
   description = "Fixed ip of the vrack interface"
 }
 
+variable "vrack_fixed_ip_offset" {
+  description = "IP address offset"
+  type        = number
+  default     = 0
+}
 
 # Disk
 

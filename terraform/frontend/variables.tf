@@ -27,6 +27,12 @@ variable "public_subnet" {
   type        = string
 }
 
+variable "ip_address_offset" {
+  description = "IP address offset"
+  type        = number
+  default     = 0
+}
+
 # Disk
 
 variable "disk" {

@@ -25,7 +25,7 @@ resource "openstack_networking_port_v2" "lan_port" {
   admin_state_up = "true"
   fixed_ip {
     subnet_id  = var.lan_subnet.id
-    ip_address = cidrhost(var.public_subnet, count.index + 1)
+    ip_address = cidrhost(var.public_subnet, count.index + 1 + var.ip_address_offset)
   }
 }
 
