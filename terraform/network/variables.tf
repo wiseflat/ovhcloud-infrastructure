@@ -36,3 +36,17 @@ variable "vrack_net" {
 variable "project_id" {
   description = "Public cloud project id"
 }
+
+variable "vrack_subnet" {
+  description = "The default vrack network settings"
+  type = object({
+    start   = string
+    end     = string
+    network = string
+  })
+  default = {
+    start   = "192.168.0.10"
+    end     = "192.168.0.200"
+    network = "192.168.0.0/16"
+  }
+}

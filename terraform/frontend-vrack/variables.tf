@@ -41,7 +41,6 @@ variable "vrack_fixed_ip" {
   description = "Fixed ip of the vrack interface"
 }
 
-
 # Disk
 
 variable "disk" {
