@@ -73,6 +73,12 @@ module "network-region-0" {
   project_id    = var.project_id
   cloud_project = ovh_vrack_cloudproject.attach
   vrack_net     = module.region.vrack_net
+
+  vrack_subnet = {
+    start   = "192.168.0.51"
+    end     = "192.168.0.100"
+    network = "192.168.0.0/16"
+  }
 }
 
 module "network-region-1" {
@@ -86,6 +92,12 @@ module "network-region-1" {
   project_id    = var.project_id
   cloud_project = ovh_vrack_cloudproject.attach
   vrack_net     = module.region.vrack_net
+
+  vrack_subnet = {
+    start   = "192.168.0.101"
+    end     = "192.168.0.150"
+    network = "192.168.0.0/16"
+  }
 }
 
 module "network-region-2" {
@@ -99,6 +111,12 @@ module "network-region-2" {
   project_id    = var.project_id
   cloud_project = ovh_vrack_cloudproject.attach
   vrack_net     = module.region.vrack_net
+
+  vrack_subnet = {
+    start   = "192.168.0.151"
+    end     = "192.168.0.200"
+    network = "192.168.0.0/16"
+  }
 }
 
 

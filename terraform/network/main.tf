@@ -42,9 +42,9 @@ resource "ovh_cloud_project_network_private_subnet" "vrack_subnet" {
   project_id = var.project_id
   network_id = var.vrack_net.id
   region     = var.region
-  start      = "192.168.0.50"
-  end        = "192.168.0.200"
-  network    = "192.168.0.0/16"
+  start      = var.vrack_subnet.start
+  end        = var.vrack_subnet.end
+  network    = var.vrack_subnet.network
   dhcp       = true
   no_gateway = true
 }
