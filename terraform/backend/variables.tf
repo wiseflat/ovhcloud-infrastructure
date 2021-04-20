@@ -4,10 +4,6 @@ variable "region" {
   description = "Region of your instance"
 }
 
-variable "gateway" {
-  description = "Default gateway"
-}
-
 variable "lan_net" {
   description = "Private network"
 }
@@ -69,13 +65,14 @@ variable "keypair" {
   description = "Keypair of the openstack instance"
 }
 
-variable "ssh_public_key" {
-  description = "ssh public key used by cloudinit"
-}
-
 variable "metadata" {
   description = "A map of metadata to add to all resources supporting it."
 }
+
+variable "user_data" {
+  description = "A user data cloud configuration"
+}
+
 
 # Operations
 
