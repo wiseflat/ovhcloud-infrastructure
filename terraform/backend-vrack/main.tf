@@ -39,9 +39,9 @@ resource "openstack_compute_instance_v2" "instance" {
     name = var.lan_net.name
   }
 
-  # lifecycle {
-  #   ignore_changes = [user_data, image_id, key_pair]
-  # }
+  lifecycle {
+    ignore_changes = [user_data, image_id, key_pair]
+  }
 
   metadata = var.metadata
 
