@@ -39,36 +39,13 @@ resource "openstack_compute_instance_v2" "instance" {
     name = var.lan_net.name
   }
 
-  # lifecycle {
-  #   ignore_changes = [user_data, image_id, key_pair]
-  # }
+  lifecycle {
+    ignore_changes = [user_data, image_id, key_pair]
+  }
 
   metadata = var.metadata
 
-  user_data = <<EOF
-#cloud-config
-output: { all: "| tee -a /var/log/cloud-init-output.log" }
-package_update: false
-ssh_authorized_keys:
-  ${var.ssh_public_key}
-write_files:
--   content: |
-      network:
-        ethernets:
-          ens3:
-            dhcp4: true
-            match:
-              name: ens3
-            set-name: ens3
-            gateway4: ${var.gateway}
-            nameservers:
-              addresses: ${jsonencode(var.dns_nameservers)}
-        version: 2
-    path: /etc/netplan/50-cloud-init.yaml
-runcmd:
- - netplan apply
- - touch /tmp/cloudinit
-EOF
+  user_data = var.user_data
 }
 
 # Ansible operations

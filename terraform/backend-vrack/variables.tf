@@ -4,21 +4,8 @@ variable "region" {
   description = "Region of your instance"
 }
 
-variable "gateway" {
-  description = "Default gateway"
-}
-
 variable "lan_net" {
   description = "Private network"
-}
-
-variable "dns_nameservers" {
-  description = "The list of dns servers to be pushed by dhcp"
-  default = [
-    "213.186.33.99",
-    "8.8.8.8"
-  ]
-  type = list(string)
 }
 
 # Disk
@@ -75,14 +62,13 @@ variable "keypair" {
   description = "Keypair of the openstack instance"
 }
 
-variable "ssh_public_key" {
-  description = "ssh public key used by cloudinit"
-}
-
 variable "metadata" {
   description = "A map of metadata to add to all resources supporting it."
 }
 
+variable "user_data" {
+  description = "A user data cloud configuration"
+}
 
 # Operations
 

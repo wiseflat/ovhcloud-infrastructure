@@ -75,30 +75,7 @@ resource "openstack_compute_instance_v2" "instance" {
 
   metadata = var.metadata
 
-  user_data = <<EOF
-#cloud-config
-output: { all: "| tee -a /var/log/cloud-init-output.log" }
-package_update: true
-packages:
- - htop
- - net-tools
-ssh_authorized_keys:
-  ${var.ssh_public_key}
-write_files:
--   content: |
-      network:
-        ethernets:
-          ens4:
-            dhcp4: true
-            match:
-              name: ens4
-            set-name: ens4
-        version: 2
-    path: /etc/netplan/60-cloud-init.yaml
-runcmd:
- - netplan apply
- - touch /tmp/cloudinit
-EOF
+  user_data = var.user_data
 }
 
 # Ansible operations

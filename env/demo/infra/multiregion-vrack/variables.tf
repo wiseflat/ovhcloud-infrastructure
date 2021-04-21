@@ -87,6 +87,15 @@ variable "domains" {
   default = []
 }
 
+variable "dns_nameservers" {
+  description = "The list of dns servers to be pushed by dhcp"
+  default = [
+    "213.186.33.99",
+    "8.8.8.8"
+  ]
+  type = list(string)
+}
+
 variable "frontends" {
   description = "Frontend definition"
   type = object({
