@@ -1,0 +1,105 @@
+---
+- name: ubuntu-focal
+  hosts: packer-docker
+  gather_facts: yes
+  tasks:
+    - name: apt_key | hashicorp gpg
+      apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+        state: present
+
+    - name: apt_repository | apt.releases.hashicorp.com
+      apt_repository:
+        repo: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - "deb https://apt.releases.hashicorp.com focal main"
+        - "ppa:ansible/ansible"
+
+    - name: get_url | download terragrunt
+      get_url:
+        url: https://github.com/gruntwork-io/terragrunt/releases/download/v0.28.24/terragrunt_linux_amd64
+        dest: /usr/bin/terragrunt
+        mode: '0755'
+
+    - name: apt | install packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+        purge: yes
+      vars:
+        packages:
+          - git
+          - curl
+          - packer
+          - terraform
+          - ansible
+
+    - name: apt | remove unused packages
+      apt:
+        name: "{{ packages }}"
+        state: absent
+        purge: yes
+        autoclean: yes
+        autoremove: yes
+      vars:
+        packages:
+          - lxd
+          - lxc-common
+          - lxcfs
+          - xxd
+          - dnsmasq-base
+          - snapd
+          - open-iscsi
+          - snap-confine
+          - usbutils
+          - lvm2
+          - lxd-client
+          - ntfs-3g
+          - parted
+          - pciutils
+          - screen
+          - xfsprogs
+          - tmux
+          - cryptsetup
+          - cryptsetup-bin
+          - accountsservice
+          - eject
+          - dosfstools
+          - mdadm
+          - xxd
+          - pastebinit
+          - open-vm-tools
+          - hdparm
+          - ufw
+          - tcpdump
+          - btrfs-*
+          - kmod
+          - popularity-contest
+          - sosreport
+          - python2.7-minimal
+          - ubuntu-advantage-tools
+          - squashfs-tools
+          - systemd
+          - build-essential
+          - gcc
+          - make
+          - manpages
+          - manpages-dev
+
+    - name: dependencies that are no longer required should be absent
+      apt:
+        autoremove: yes
+
+    - name: shell | apt packages archives should be cleaned
+      shell: apt-get clean
+      args:
+        warn: false
+
+    - name: file | remove apt lists
+      ansible.builtin.file:
+        path: /var/lib/apt/lists/
+        state: absent
+
