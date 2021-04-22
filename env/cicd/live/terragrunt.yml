@@ -1,0 +1,21 @@
+---
+working_dir: /drone/src/env/cicd
+ssh_public_key: /drone/src/env/cicd/ssh/id_rsa.pub
+playbook_path: /drone/src/playbooks
+
+restricted_ip:
+  - 0.0.0.0/0
+
+restricted_port:
+  - 22
+
+zone:
+  root: domain.com
+  subdomain: www
+
+domains: []
+  # - zone: domain.com
+  #   subdomain: www
+  #   target: public_ip
+  #   fieldtype: A
+  #   ttl: 60
