@@ -16,13 +16,13 @@ resource "ovh_vrack_cloudproject" "attach" {
 }
 
 module "domains" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//domain"
+  source = "/drone/src/terraform//domain"
 
   domains = var.domains
 }
 
 module "region" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//region"
+  source = "/drone/src/terraform//region"
 
   name           = var.name
   project_id     = var.project_id
@@ -33,7 +33,7 @@ module "region" {
 }
 
 module "secgroup-region-0" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//secgroup"
+  source = "/drone/src/terraform//secgroup"
 
   name            = var.name
   region          = element(tolist(var.regions), 0)
@@ -43,7 +43,7 @@ module "secgroup-region-0" {
 }
 
 module "secgroup-region-1" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//secgroup"
+  source = "/drone/src/terraform//secgroup"
 
   name            = var.name
   region          = element(tolist(var.regions), 1)
@@ -53,7 +53,7 @@ module "secgroup-region-1" {
 }
 
 module "secgroup-region-2" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//secgroup"
+  source = "/drone/src/terraform//secgroup"
 
   name            = var.name
   region          = element(tolist(var.regions), 2)
@@ -63,7 +63,7 @@ module "secgroup-region-2" {
 }
 
 module "network-region-0" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//network"
+  source = "/drone/src/terraform//network"
 
   name    = var.network_name
   ext_net = "Ext-Net"
@@ -76,7 +76,7 @@ module "network-region-0" {
 }
 
 module "network-region-1" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//network"
+  source = "/drone/src/terraform//network"
 
   name    = var.network_name
   ext_net = "Ext-Net"
@@ -89,7 +89,7 @@ module "network-region-1" {
 }
 
 module "network-region-2" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//network"
+  source = "/drone/src/terraform//network"
 
   name    = var.network_name
   ext_net = "Ext-Net"
@@ -129,7 +129,7 @@ EOF
 }
 
 module "frontend-0" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//frontend"
+  source = "/drone/src/terraform//frontend"
 
   secgroup = module.secgroup-region-0.ingress
 
@@ -162,7 +162,7 @@ module "frontend-0" {
 }
 
 module "frontend-1" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//frontend"
+  source = "/drone/src/terraform//frontend"
 
   secgroup = module.secgroup-region-1.ingress
 
@@ -195,7 +195,7 @@ module "frontend-1" {
 }
 
 module "frontend-2" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//frontend"
+  source = "/drone/src/terraform//frontend"
 
   secgroup = module.secgroup-region-2.ingress
 
@@ -253,7 +253,7 @@ EOF
 }
 
 module "backend-0" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//backend"
+  source = "/drone/src/terraform//backend"
 
   region     = element(tolist(var.regions), 0)
   lan_net    = module.network-region-0.lan_net
@@ -308,7 +308,7 @@ EOF
 }
 
 module "backend-1" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//backend"
+  source = "/drone/src/terraform//backend"
 
   region     = element(tolist(var.regions), 1)
   lan_net    = module.network-region-1.lan_net
@@ -364,7 +364,7 @@ EOF
 }
 
 module "backend-2" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//backend"
+  source = "/drone/src/terraform//backend"
 
   region     = element(tolist(var.regions), 2)
   lan_net    = module.network-region-2.lan_net

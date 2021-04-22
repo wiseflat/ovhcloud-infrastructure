@@ -16,7 +16,7 @@ resource "ovh_vrack_cloudproject" "attach" {
 }
 
 module "domains" {
-  source = "github.com/wiseflat/ovhcloud-infrastructure/terraform//domain"
+  source = "/drone/src/terraform//domain"
 
   domains = var.domains
 }
