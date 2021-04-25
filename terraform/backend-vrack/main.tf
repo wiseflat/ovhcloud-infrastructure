@@ -63,6 +63,10 @@ resource "null_resource" "ansible" {
     command     = "ansible-playbook ${var.playbook_path}/check-port.yml -l ${var.frontend_hostname} -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e checkport=22"
     working_dir = var.working_dir
   }
+  provisioner "local-exec" {
+    command     = "ansible-playbook ${var.playbook_path}/facts.yml -l ${openstack_compute_instance_v2.instance[count.index].name} -e region=${var.region} -e role=${var.metadata.role}"
+    working_dir = var.working_dir
+  }
   # provisioner "local-exec" {
   #   command     = "ansible-playbook ${var.playbook_path}/check-cloudinit.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
   #   working_dir = var.working_dir

@@ -106,6 +106,10 @@ resource "null_resource" "ansible" {
     command     = "ansible-playbook ${var.playbook_path}/iptables.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
     working_dir = var.working_dir
   }
+  provisioner "local-exec" {
+    command     = "ansible-playbook ${var.playbook_path}/facts.yml -l ${openstack_compute_instance_v2.instance[count.index].name} -e region=${var.region} -e role=${var.metadata.role}"
+    working_dir = var.working_dir
+  }
 }
 
 resource "null_resource" "ansible-destroy" {
