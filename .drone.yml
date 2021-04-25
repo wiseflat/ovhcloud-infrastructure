@@ -82,7 +82,7 @@ steps:
         
   - name: terragrunt destroy
     image: wiseflat/terransible:0.1
-    working_dir: /drone/src/env/cicd/live/monoregion
+    working_dir: /drone/src/env/cicd
     environment:
       OS_AUTH_URL: 
         from_secret: os_auth_url
@@ -111,6 +111,8 @@ steps:
       TF_VAR_vrack_id:
         from_secret: vrack_id
     commands:
+      # - ssh-keygen -f ssh/id_rsa -q -N ""
+      - cd live/monoregion
       - terragrunt destroy -auto-approve
     when:
       event:
@@ -118,8 +120,9 @@ steps:
         - push
 
 
-# # trigger:
-# #   event:
-# #     include:
-# #     - push
-# #     - pull_request
+trigger:
+  event:
+    include:
+    - push
+    exclude:
+    - pull_request
