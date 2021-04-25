@@ -1,0 +1,125 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: terragrunt plan
+    image: wiseflat/terransible:0.1
+    working_dir: /drone/src/env/cicd
+    environment:
+      OS_AUTH_URL: 
+        from_secret: os_auth_url
+      OS_IDENTITY_API_VERSION: 
+        from_secret: os_identity_api_version
+      OS_USER_DOMAIN_NAME: Default
+      OS_PROJECT_DOMAIN_NAME: Default
+      OS_TENANT_ID:
+        from_secret: os_tenant_id
+      OS_TENANT_NAME:
+        from_secret: os_tenant_name
+      OS_USERNAME:
+        from_secret: os_username
+      OS_PASSWORD:
+        from_secret: os_password
+      OS_REGION_NAME:
+        from_secret: os_region_name
+      OVH_APPLICATION_KEY:
+        from_secret: ovh_application_key
+      OVH_APPLICATION_SECRET:
+        from_secret: ovh_application_secret
+      OVH_CONSUMER_KEY:
+        from_secret: ovh_consumer_key
+      TF_VAR_project_id:
+        from_secret: os_tenant_id
+      TF_VAR_vrack_id:
+        from_secret: vrack_id
+    commands:
+      - ssh-keygen -f ssh/id_rsa -q -N ""
+      - cd live/monoregion
+      - terragrunt plan
+    when:
+      event:
+        include:
+        - push
+
+  - name: terragrunt apply
+    image: wiseflat/terransible:0.1
+    working_dir: /drone/src/env/cicd/live/monoregion
+    environment:
+      OS_AUTH_URL: 
+        from_secret: os_auth_url
+      OS_IDENTITY_API_VERSION: 
+        from_secret: os_identity_api_version
+      OS_USER_DOMAIN_NAME: Default
+      OS_PROJECT_DOMAIN_NAME: Default
+      OS_TENANT_ID:
+        from_secret: os_tenant_id
+      OS_TENANT_NAME:
+        from_secret: os_tenant_name
+      OS_USERNAME:
+        from_secret: os_username
+      OS_PASSWORD:
+        from_secret: os_password
+      OS_REGION_NAME:
+        from_secret: os_region_name
+      OVH_APPLICATION_KEY:
+        from_secret: ovh_application_key
+      OVH_APPLICATION_SECRET:
+        from_secret: ovh_application_secret
+      OVH_CONSUMER_KEY:
+        from_secret: ovh_consumer_key
+      TF_VAR_project_id:
+        from_secret: os_tenant_id
+      TF_VAR_vrack_id:
+        from_secret: vrack_id
+    commands:
+      - terragrunt apply -auto-approve
+    when:
+      event:
+        include:
+        - push
+        
+  - name: terragrunt destroy
+    image: wiseflat/terransible:0.1
+    working_dir: /drone/src/env/cicd/live/monoregion
+    environment:
+      OS_AUTH_URL: 
+        from_secret: os_auth_url
+      OS_IDENTITY_API_VERSION: 
+        from_secret: os_identity_api_version
+      OS_USER_DOMAIN_NAME: Default
+      OS_PROJECT_DOMAIN_NAME: Default
+      OS_TENANT_ID:
+        from_secret: os_tenant_id
+      OS_TENANT_NAME:
+        from_secret: os_tenant_name
+      OS_USERNAME:
+        from_secret: os_username
+      OS_PASSWORD:
+        from_secret: os_password
+      OS_REGION_NAME:
+        from_secret: os_region_name
+      OVH_APPLICATION_KEY:
+        from_secret: ovh_application_key
+      OVH_APPLICATION_SECRET:
+        from_secret: ovh_application_secret
+      OVH_CONSUMER_KEY:
+        from_secret: ovh_consumer_key
+      TF_VAR_project_id:
+        from_secret: os_tenant_id
+      TF_VAR_vrack_id:
+        from_secret: vrack_id
+    commands:
+      - terragrunt destroy -auto-approve
+    when:
+      event:
+        include:
+        - push
+
+
+# # trigger:
+# #   event:
+# #     include:
+# #     - push
+# #     - pull_request

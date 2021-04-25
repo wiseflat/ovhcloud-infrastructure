@@ -1,0 +1,60 @@
+{
+  "builders": [
+    {
+      "commit": "true",
+      "image": "ubuntu:focal",
+      "name": "wiseflat/terransible",
+      "pull": "true",
+      "run_command": [
+        "-d",
+        "-i",
+        "-t",
+        "--name",
+        "packer-docker",
+        "{{.Image}}",
+        "/bin/bash"
+      ],
+      "type": "docker"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "repository": "wiseflat/terransible",
+        "tags": [
+          "0.1"
+        ],
+        "type": "docker-tag"
+      },
+      {
+        "type": "docker-push"
+      }
+    ]
+  ],
+  "provisioners": [
+    {
+      "inline": [
+        "echo 'Etc/UTC' > /etc/timezone",
+        "apt-get update",
+        "DEBIAN_FRONTEND=noninteractive apt-get install python3-minimal ca-certificates gnupg2 -yq"
+      ],
+      "type": "shell"
+    },
+    {
+      "ansible_env_vars": [
+        "ANSIBLE_HOST_KEY_CHECKING=False"
+      ],
+      "extra_arguments": [
+        "-e ansible_connection=docker",
+        "-e ansible_python_interpreter=/usr/bin/python3",
+        "-e ansible_host=packer-docker",
+        "-e builder_type=docker",
+        "-e builder_name=wiseflat/terransible"
+      ],
+      "inventory_file": "./inventory.ini",
+      "playbook_file": "./ubuntu-focal.yml",
+      "type": "ansible",
+      "user": "root"
+    }
+  ]
+}
