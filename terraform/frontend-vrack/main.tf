@@ -11,7 +11,7 @@ data "openstack_networking_network_v2" "ext_net" {
 resource "openstack_networking_port_v2" "ext_port" {
   count = var.nbinstances
 
-  name               = format("%s%s.%s.%s.%s.%s", var.hostname, count.index + 1, lower(var.region), var.name, var.zone.subdomain, var.zone.root)
+  name               = format("%s%s.%s.%s.%s.%s", var.hostname, format("%03d", count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
   network_id         = data.openstack_networking_network_v2.ext_net.id
   admin_state_up     = "true"
   security_group_ids = [var.secgroup.id]
@@ -20,7 +20,7 @@ resource "openstack_networking_port_v2" "ext_port" {
 resource "openstack_networking_port_v2" "lan_port" {
   count = var.nbinstances
 
-  name           = format("%s%s.%s.%s.%s.%s", var.hostname, count.index + 1, lower(var.region), var.name, var.zone.subdomain, var.zone.root)
+  name           = format("%s%s.%s.%s.%s.%s", var.hostname, format("%03d", count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
   network_id     = var.lan_net.id
   admin_state_up = "true"
   fixed_ip {
@@ -55,7 +55,7 @@ data "openstack_images_image_v2" "default" {
 resource "openstack_compute_instance_v2" "instance" {
   count = var.nbinstances
 
-  name        = format("%s%s.%s.%s.%s.%s", var.hostname, count.index + 1, lower(var.region), var.name, var.zone.subdomain, var.zone.root)
+  name        = format("%s%s.%s.%s.%s.%s", var.hostname, format("%03d", count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
   image_id    = data.openstack_images_image_v2.default.id
   flavor_name = var.flavor_name
   key_pair    = var.keypair.id
