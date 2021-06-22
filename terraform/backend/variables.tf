@@ -48,6 +48,7 @@ variable "zone" {
   type = object({
     root      = string
     subdomain = string
+    region    = string
   })
 }
 
