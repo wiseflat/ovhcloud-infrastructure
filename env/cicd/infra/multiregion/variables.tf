@@ -86,6 +86,42 @@ variable "domains" {
   default = []
 }
 
+variable "nbinstances_region0" {
+  description = "Number of instances to deploy"
+  type = object({
+    backends  = number
+    frontends = number
+  })
+  default = {
+    backends  = 0
+    frontends = 0
+  }
+}
+
+variable "nbinstances_region1" {
+  description = "Number of instances to deploy"
+  type = object({
+    backends  = number
+    frontends = number
+  })
+  default = {
+    backends  = 0
+    frontends = 0
+  }
+}
+
+variable "nbinstances_region2" {
+  description = "Number of instances to deploy"
+  type = object({
+    backends  = number
+    frontends = number
+  })
+  default = {
+    backends  = 0
+    frontends = 0
+  }
+}
+
 variable "frontends" {
   description = "Frontend definition"
   type = object({
@@ -94,7 +130,6 @@ variable "frontends" {
     hostname    = string
     flavor      = string
     image       = string
-    nbinstances = number
     disk        = bool
     disk_size   = number
     ansible     = bool
@@ -109,7 +144,6 @@ variable "frontends" {
     hostname    = "frontend"
     flavor      = "s1-2"
     image       = "Ubuntu 20.04"
-    nbinstances = 0
     disk        = false
     disk_size   = 10
     ansible     = false
@@ -122,7 +156,6 @@ variable "backends" {
     hostname    = string
     flavor      = string
     image       = string
-    nbinstances = number
     disk        = bool
     disk_size   = number
     ansible     = bool
@@ -131,7 +164,6 @@ variable "backends" {
     hostname    = "backend"
     flavor      = "s1-2"
     image       = "Ubuntu 20.04"
-    nbinstances = 0
     disk        = false
     disk_size   = 10
     ansible     = false

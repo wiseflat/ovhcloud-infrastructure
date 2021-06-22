@@ -19,3 +19,17 @@ domains: []
   #   target: public_ip
   #   fieldtype: A
   #   ttl: 60
+
+nbinstances:
+  region0:
+    backends: 1
+    backends_vrack: 0
+    frontends: 1
+  region1:
+    backends: 0
+    backends_vrack: 0
+    frontends: 0
+  region2:
+    backends: 0
+    backends_vrack: 0
+    frontends: 0

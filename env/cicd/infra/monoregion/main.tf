@@ -98,7 +98,7 @@ module "frontend" {
   hostname = var.frontends.hostname
   zone     = var.zone
 
-  nbinstances = var.frontends.nbinstances
+  nbinstances = var.nbinstances.frontends
   keypair     = element(tolist(module.region.keypair), 0)
   image_name  = var.frontends.image
   flavor_name = var.frontends.flavor
@@ -151,7 +151,7 @@ module "backend" {
   hostname = var.backends.hostname
   zone     = var.zone
 
-  nbinstances = var.backends.nbinstances
+  nbinstances = var.nbinstances.backends
   keypair     = element(tolist(module.region.keypair), 0)
   image_name  = var.backends.image
   flavor_name = var.backends.flavor
