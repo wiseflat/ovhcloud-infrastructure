@@ -12,6 +12,7 @@ restricted_port:
 zone:
   root: domain.com
   subdomain: www
+  region: eu
 
 domains: []
   # - zone: domain.com
@@ -22,9 +23,9 @@ domains: []
 
 nbinstances:
   region0:
-    backends: 1
+    backends: 0
     backends_vrack: 0
-    frontends: 1
+    frontends: 0
   region1:
     backends: 0
     backends_vrack: 0
