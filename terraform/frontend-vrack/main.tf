@@ -86,7 +86,7 @@ resource "openstack_compute_instance_v2" "instance" {
 # Ansible operations
 
 resource "null_resource" "ansible" {
-  count = var.nbinstances
+  count = var.ansible ? var.nbinstances : 0
 
   depends_on = [openstack_compute_instance_v2.instance, openstack_compute_volume_attach_v2.data]
 
@@ -113,7 +113,7 @@ resource "null_resource" "ansible" {
 }
 
 resource "null_resource" "ansible-destroy" {
-  count = var.nbinstances
+  count = var.ansible ? var.nbinstances : 0
 
   triggers = {
     location      = var.metadata.location

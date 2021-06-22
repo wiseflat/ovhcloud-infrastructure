@@ -90,6 +90,12 @@ variable "user_data" {
 
 # Operations
 
+variable "ansible" {
+  description = "Enable ansible-playbook once instances are deployed"
+  type        = bool
+  default     = false
+}
+
 variable "playbook_path" {
   description = "Path of Ansible playbooks"
 }

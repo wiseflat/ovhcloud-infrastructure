@@ -40,6 +40,7 @@ inputs = {
     nbinstances = local.nbinstances.frontends
     disk        = false
     disk_size   = 10
+    ansible     = false
   }
 
   backends = {
@@ -49,6 +50,7 @@ inputs = {
     nbinstances = local.nbinstances.backends
     disk        = false
     disk_size   = 10
+    ansible     = false
   }
 
   working_dir    = local.project.working_dir
