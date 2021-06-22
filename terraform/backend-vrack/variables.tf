@@ -76,6 +76,12 @@ variable "frontend_hostname" {
   description = "Frontend server hostname used by Ansible to check if port 22 is opened"
 }
 
+variable "ansible" {
+  description = "Enable ansible-playbook once instances are deployed"
+  type        = bool
+  default     = false
+}
+
 variable "playbook_path" {
   description = "Path of Ansible playbooks"
 }
