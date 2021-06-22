@@ -95,6 +95,7 @@ variable "frontends" {
     nbinstances = number
     disk        = bool
     disk_size   = number
+    ansible     = bool
   })
   default = {
     lan_net = [
@@ -107,6 +108,7 @@ variable "frontends" {
     nbinstances = 0
     disk        = false
     disk_size   = 10
+    ansible     = false
   }
 }
 
@@ -119,6 +121,7 @@ variable "backends" {
     nbinstances = number
     disk        = bool
     disk_size   = number
+    ansible     = bool
   })
   default = {
     hostname    = "backend"
@@ -127,5 +130,6 @@ variable "backends" {
     nbinstances = 0
     disk        = false
     disk_size   = 10
+    ansible     = false
   }
 }
