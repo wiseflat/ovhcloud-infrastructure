@@ -5,11 +5,6 @@ terraform {
 locals {
   project = yamldecode(file(find_in_parent_folders("terragrunt.yml")))
   vlan_id = 2
-
-  nbinstances = {
-    frontends = 0
-    backends  = 0
-  }
 }
 
 inputs = {
@@ -31,6 +26,10 @@ inputs = {
 
   domains = local.project.domains
 
+  nbinstances_region0 = local.project.nbinstances.region0
+  nbinstances_region1 = local.project.nbinstances.region1
+  nbinstances_region2 = local.project.nbinstances.region2
+
   frontends = {
     lan_net = [
       "10.0.1.0/24",
@@ -41,7 +40,6 @@ inputs = {
     hostname    = "frontend"
     flavor      = "s1-2"
     image       = "Ubuntu 20.04"
-    nbinstances = local.nbinstances.frontends
     disk        = false
     disk_size   = 10
     ansible     = false
@@ -51,7 +49,6 @@ inputs = {
     hostname    = "backend"
     flavor      = "s1-2"
     image       = "Ubuntu 20.04"
-    nbinstances = local.nbinstances.backends
     disk        = false
     disk_size   = 10
     ansible     = false
