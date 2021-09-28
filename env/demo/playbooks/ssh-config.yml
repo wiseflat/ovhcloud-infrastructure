@@ -1,0 +1,67 @@
+---
+- name: ssh-config
+  hosts: localhost
+  become: no
+  gather_facts: no
+  vars_prompt:
+    - name: section
+      prompt: blockinfile section
+      private: no
+    - name: project
+      prompt: project section
+      private: no
+    - name: location
+      prompt: location section
+      private: no
+    - name: server
+      prompt: server section
+      private: no
+    - name: ip
+      prompt: public ip address
+      private: no
+    - name: hostname
+      prompt: server hostname
+      private: no
+    - name: state
+      prompt: state (absent / present)
+      private: no
+  tasks:
+    - name: pause | just in case multiple deployments happen at the same time
+      pause:
+        seconds: "{{ 10 | random }}"
+
+    - name: blockinfile | frontend | update ssh config file
+      blockinfile:
+        path: "{{ inventory_dir }}/config"
+        state: "{{ state }}"
+        marker: "# {mark} {{ hostname }}"
+        insertafter: "##{{ section }}"
+        block: |
+          Host {{ hostname }}
+            HostName {{ ip }}
+      when: section == 'frontend' or  section == 'frontend_vrack'
+
+    - name: blockinfile | backend | update ssh config file
+      blockinfile:
+        path: "{{ inventory_dir }}/config"
+        state: "{{ state }}"
+        marker: "# {mark} {{ hostname }}"
+        insertafter: "##{{ section }}"
+        block: |
+          Host {{ hostname }}
+            HostName {{ ip }}
+            ProxyJump {{ proxyjump }}
+      when: section == 'backend' or section == 'backend_vrack'
+
+    - name: ini_file | add server to inventory groups
+      ini_file:
+        path: "{{ inventory_dir }}/inventory.ini"
+        section: "{{ item }}"
+        option: "{{ hostname }}"
+        allow_no_value: yes
+        state: "{{ state }}"
+      loop:
+        - "{{ project }}"
+        - "{{ location }}"
+        - "{{ server }}"
+        - "{{ section }}"

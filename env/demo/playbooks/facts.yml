@@ -1,0 +1,34 @@
+---
+- name: facts
+  hosts: all
+  gather_facts: no
+  become: yes
+  vars_prompt:
+    - name: region
+      prompt: region
+      private: no
+    - name: role
+      prompt: role
+      private: no
+  tasks:
+    - name: file | create ansible facts.d directory
+      become: yes
+      file:
+        path: "/etc/ansible/facts.d"
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: 0755
+
+    - name: set_fact | set list of services
+      set_fact:
+        instance:
+          region: "{{ region }}"
+          role: "{{ role }}"
+
+    - name: copy | facts services
+      copy:
+        content: |
+          {{ instance | to_nice_json }}
+        dest: /etc/ansible/facts.d/instance.fact
+        mode: 0644
