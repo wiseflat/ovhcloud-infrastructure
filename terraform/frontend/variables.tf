@@ -49,6 +49,12 @@ variable "nbinstances" {
   type        = number
 }
 
+variable "format" {
+  description = "Instance digit format"
+  default     = "%03d"
+  type        = string
+}
+
 variable "name" {
   description = "Name of your infrastructure"
 }
@@ -63,7 +69,6 @@ variable "zone" {
   type = object({
     root      = string
     subdomain = string
-    region    = string
   })
 }
 
@@ -97,10 +102,3 @@ variable "ansible" {
   default     = false
 }
 
-variable "playbook_path" {
-  description = "Path of Ansible playbooks"
-}
-
-variable "working_dir" {
-  description = "Path of your environment"
-}

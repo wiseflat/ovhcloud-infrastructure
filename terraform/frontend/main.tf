@@ -11,7 +11,7 @@ data "openstack_networking_network_v2" "ext_net" {
 resource "openstack_networking_port_v2" "ext_port" {
   count = var.nbinstances
 
-  name               = format("%s%s.%s.%s.%s.%s", var.hostname, format("%03d", count.index + 1), var.zone.region, var.name, var.zone.subdomain, var.zone.root)
+  name               = format("%s%s.%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
   network_id         = data.openstack_networking_network_v2.ext_net.id
   admin_state_up     = "true"
   security_group_ids = [var.secgroup.id]
@@ -20,7 +20,7 @@ resource "openstack_networking_port_v2" "ext_port" {
 resource "openstack_networking_port_v2" "lan_port" {
   count = var.nbinstances
 
-  name           = format("%s%s.%s.%s.%s.%s", var.hostname, format("%03d", count.index + 1), var.zone.region, var.name, var.zone.subdomain, var.zone.root)
+  name           = format("%s%s.%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
   network_id     = var.lan_net.id
   admin_state_up = "true"
   fixed_ip {
@@ -55,7 +55,7 @@ data "openstack_images_image_v2" "default" {
 resource "openstack_compute_instance_v2" "instance" {
   count = var.nbinstances
 
-  name        = format("%s%s.%s.%s.%s.%s", var.hostname, format("%03d", count.index + 1), var.zone.region, var.name, var.zone.subdomain, var.zone.root)
+  name        = format("%s%s.%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
   image_id    = data.openstack_images_image_v2.default.id
   flavor_name = var.flavor_name
   key_pair    = var.keypair.id
@@ -85,25 +85,30 @@ resource "null_resource" "ansible" {
 
   depends_on = [openstack_compute_instance_v2.instance, openstack_compute_volume_attach_v2.data]
 
+  triggers = {
+    hostname      = openstack_compute_instance_v2.instance[count.index].name
+    access_ip_v4      = openstack_compute_instance_v2.instance[count.index].access_ip_v4
+  }
+
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook_path}/ssh-config.yml -e project=${var.zone.subdomain} -e location=${var.metadata.location} -e server=frontend -e section=frontend -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e hostname=${openstack_compute_instance_v2.instance[count.index].name} -e state=present"
-    working_dir = var.working_dir
+    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e location=${var.metadata.location} -e server=frontend -e section=frontend -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e state=present"
+    working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook_path}/check-port.yml -l localhost -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e checkport=22"
-    working_dir = var.working_dir
+    command     = "ansible-playbook playbooks/check-port.yml -l localhost -e ip=${self.triggers.access_ip_v4} -e checkport=22"
+    working_dir = "${path.root}/../.."
   }
   # provisioner "local-exec" {
-  #   command     = "ansible-playbook ${var.playbook_path}/check-cloudinit.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
+  #   command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
   #   working_dir = var.working_dir
   # }
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook_path}/iptables.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
-    working_dir = var.working_dir
+    command     = "ansible-playbook playbooks/iptables.yml -l ${self.triggers.hostname}"
+    working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook_path}/facts.yml -l ${openstack_compute_instance_v2.instance[count.index].name} -e region=${var.region} -e role=${var.metadata.role}"
-    working_dir = var.working_dir
+    command     = "ansible-playbook playbooks/facts.yml -l ${self.triggers.hostname} -e region=${var.region} -e role=${var.metadata.role}"
+    working_dir = "${path.root}/../.."
   }
 }
 
@@ -113,14 +118,12 @@ resource "null_resource" "ansible-destroy" {
   triggers = {
     location      = var.metadata.location
     hostname      = openstack_compute_instance_v2.instance[count.index].name
-    playbook_path = var.playbook_path
-    working_dir   = var.working_dir
     subdomain     = var.zone.subdomain
   }
 
   provisioner "local-exec" {
     when        = destroy
-    command     = "ansible-playbook ${self.triggers.playbook_path}/ssh-config.yml -e project=${self.triggers.subdomain} -e location=${self.triggers.location} -e server=frontend -e section=frontend -e ip=null -e hostname=${self.triggers.hostname} -e state=absent"
-    working_dir = self.triggers.working_dir
+    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${self.triggers.subdomain} -e location=${self.triggers.location} -e server=frontend -e section=frontend -e ip=null -e hostname=${self.triggers.hostname} -e state=absent"
+    working_dir = "${path.root}/../.."
   }
 }
