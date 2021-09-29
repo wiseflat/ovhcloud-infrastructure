@@ -29,19 +29,10 @@ variable "vrack_id" {
   description = "vrack id"
 }
 
-variable "playbook_path" {
-  description = "Path of Ansible playbooks"
-}
-
 variable "network_name" {
   description = "Local network name between instances"
   type        = string
   default     = "Int-Net"
-}
-
-variable "working_dir" {
-  description = "Path of Ansible playbooks"
-  type        = string
 }
 
 variable "restricted_ip" {
@@ -96,6 +87,12 @@ variable "dns_nameservers" {
   type = list(string)
 }
 
+variable "format" {
+  description = "Instance digit format"
+  default     = "%03d"
+  type        = string
+}
+
 variable "frontends" {
   description = "Frontend definition"
   type = object({
@@ -107,7 +104,6 @@ variable "frontends" {
     nbinstances = number
     disk        = bool
     disk_size   = number
-    ansible     = bool
   })
   default = {
     lan_net = [
@@ -122,7 +118,6 @@ variable "frontends" {
     nbinstances = 0
     disk        = false
     disk_size   = 10
-    ansible     = false
   }
 
 }
@@ -136,7 +131,6 @@ variable "backends" {
     nbinstances = number
     disk        = bool
     disk_size   = number
-    ansible     = bool
   })
   default = {
     hostname    = "backend"
@@ -145,7 +139,6 @@ variable "backends" {
     nbinstances = 0
     disk        = false
     disk_size   = 10
-    ansible     = false
   }
 }
 
@@ -158,7 +151,6 @@ variable "backends_vrack" {
     nbinstances = number
     disk        = bool
     disk_size   = number
-    ansible     = bool
   })
   default = {
     hostname    = "backend-vrack"
@@ -167,6 +159,5 @@ variable "backends_vrack" {
     nbinstances = 0
     disk        = false
     disk_size   = 10
-    ansible     = false
   }
 }

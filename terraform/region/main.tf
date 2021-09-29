@@ -1,5 +1,5 @@
 resource "ovh_cloud_project_network_private" "net" {
-  name       = "Multi-Net"
+  name       = var.name
   project_id = var.project_id
   regions    = var.regions
   vlan_id    = var.vlan_id

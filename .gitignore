@@ -28,4 +28,3 @@ id_rsa*
 
 env/*
 !env/demo
-!env/cicd

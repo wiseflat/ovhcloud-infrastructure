@@ -23,7 +23,6 @@ This repository contains resources to deploy a generic cloud platform on top of 
 # Prerequisites
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.14
-- [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/)
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 
 - Create a Public Cloud [project](https://docs.ovh.com/us/en/dedicated/vrack-pci-ds/#create-a-public-cloud-project)
@@ -44,7 +43,6 @@ A fully fonctionnal demo environments will help you to deploy multiple infrastru
 # Environment definition
 
 - `infra` directory is the definition of your different type of infrastructure
-- `Live` directory is terragrunt managed, it's a set of multiple Public Cloud Project. Each terragrunt live refers to one of your different infrastructures.
 - All other files are used by Ansible to manage your instances.
 
 ```
@@ -60,14 +58,15 @@ env/demo
 |   |-- multiregion
 |   `-- multiregion-vrack
 |-- inventory.ini
-|-- live
-|   |-- monoregion
-|   |-- multiregion
-|   |-- multiregion-vrack
-|   `-- terragrunt.yml
 |-- playbooks
+|   |-- check-cloudinit.yml
+|   |-- check-port.yml
+|   |-- facts.yml
+|   |-- iptables.yml
 |   |-- nginx.yml
-|   `-- templates
+|   |-- ssh-config.yml
+|   |-- templates
+|   `-- upgrade.yml
 `-- ssh
 ```
 
@@ -94,38 +93,21 @@ This will be used to create your openstack keypair.
 ## Edit your project configuration file
 
 ```sh
-/home/ansible/ovhcloud-infrastructure$ vim env/develop/live/terragrunt.yml
+/home/ansible/ovhcloud-infrastructure$ vim env/develop/infra/multiregion-vrack/variables.tfvars
 ```
 
-- Adapt paths to match the absolute path of your project.
-- Vrack ID is the one you created above from the Control Panel.
-- SSH port is filtered by default, so just add your public ip address to authorize yourself.
 - DNS Zone is used to create your ssh config file. DNS record are not created, it's just for human readable purpose and Ansible connectivity.
+- Vrack ID is the one you created above from the Control Panel.
+- Set up a default Vlan ID.
 
-```yaml
----
-working_dir: /home/ansible/ovhcloud-infrastructure/env/develop
-ssh_public_key: /home/ansible/ovhcloud-infrastructure/env/develop/ssh/id_rsa.pub
-playbook_path: /home/ansible/ovhcloud-infrastructure/playbooks
+```hcl
+zone = {
+  root      = "wiseflat.com"
+  subdomain = "infra"
+}
 
-vrack_id: pn-xxxx
-
-restricted_ip:
-  - x.x.x.x/32
-
-restricted_port:
-  - 22
-
-zone:
-  root: domain.com
-  subdomain: www
-
-domains: []
-  # - zone: domain.com
-  #   subdomain: www
-  #   target: public_ip
-  #   fieldtype: A
-  #   ttl: 60
+vlan_id = 3
+vrack_id = "pn-xxxx"
 ```
 
 ## First step
@@ -144,64 +126,80 @@ Source your OpenStack's RC file to set your environments variables:
 
 ```sh
 /home/ansible/ovhcloud-infrastructure$ cd env/develop/live/multiregion-vrack
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt init
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt plan
+/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform init
+/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform plan -var-file="variables.tfvars"
+/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform apply -var-file="variables.tfvars"
 ```
 
-Maybe, you will have some issues about regions, check it on [horizon](https://horizon.cloud.ovh.net)
+Terraform may fails because your Openstack project do not use the same regions. Check it on [horizon](https://horizon.cloud.ovh.net). 
 
-Edit `terragrunt.hcl` file in the same directory, which one contains some defaults values and override the `regions` variable:
+Edit `variables.tfvars` file in the same directory, which one contains some defaults values and override the `regions` variable, than execute again the last command.
 
-```
-  # regions = [
-  #   "DE1",
-  #   "UK1",
-  #   "GRA7"
-  # ]
-```
-
-```
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt apply
+```hcl
+// regions = [
+//     "DE1",
+//     "UK1",
+//     "GRA5"
+// ]
 ```
 
 If everything worked, at this step you will have security groups, networks, regions set up.
 
 ## Second step : deploy frontends
 
-Edit `terragrunt.hcl` file in the same directory, which one contains some defaults values.
+Setting `nbinstances = 1` will create 1 instance per region.
+Edit `variables.tfvars` file in the same directory: 
 
-Setting `frontends = 1` will create 1 instance per region.
-
-```yaml
-  nbinstances = {
-    frontends      = 1
-    backends       = 0
-    backends_vrack = 0
-  }
+```hcl
+frontends = {
+    lan_net = [
+      "10.0.1.0/24",
+      "10.0.2.0/24",
+      "10.0.3.0/24"
+    ]
+    vrack_net   = "192.168.0.0/16"
+    hostname    = "frontend"
+    flavor      = "s1-2"
+    image       = "Ubuntu 20.04"
+    nbinstances = 1
+    disk        = false
+    disk_size   = 10
+}
 ```
 
 ```sh
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt plan
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt apply
+/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform apply -var-file="variables.tfvars"
 ```
 
 ## Third step : deploy backends
 
-Setting `backends = 1` will create 1 instance per region connected to the Internal network.
+Setting `backends.nbinstances = 1` will create 1 instance per region connected to the Internal network.
+Setting `backends_vrack.nbinstances = 1` will create 1 instance per region connected the vrack network.
 
-Setting `backends_vrack = 1` will create 1 instance per region connected the vrack network.
+Edit `variables.tfvars` file in the same directory:
 
 ```yaml
-  nbinstances = {
-    frontends      = 1
-    backends       = 1
-    backends_vrack = 1
-  }
+backends = {
+    hostname    = "backend"
+    flavor      = "s1-2"
+    image       = "Ubuntu 20.04"
+    nbinstances = 1
+    disk        = false
+    disk_size   = 10
+}
+
+backends_vrack = {
+    hostname    = "backend-vrack"
+    flavor      = "s1-2"
+    image       = "Ubuntu 20.04"
+    nbinstances = 1
+    disk        = false
+    disk_size   = 10
+}
 ```
 
 ```sh
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt plan
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt apply
+/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform apply -var-file="variables.tfvars"
 ```
 
 ## Ansible operations
@@ -218,45 +216,45 @@ Ansible helps you to update your local files automatically:
 ```sh
 /home/ansible/ovhcloud-infrastructure/env/develop$ ansible-inventory --graph
 @all:
+  |--@infra:
+  |  |--backend-vrack1.de1.multivrack.infra.wiseflat.fr
+  |  |--backend-vrack1.gra5.multivrack.infra.wiseflat.fr
+  |  |--backend-vrack1.uk1.multivrack.infra.wiseflat.fr
+  |  |--backend1.de1.multivrack.infra.wiseflat.fr
+  |  |--backend1.gra5.multivrack.infra.wiseflat.fr
+  |  |--backend1.uk1.multivrack.infra.wiseflat.fr
+  |  |--frontend1.de1.multivrack.infra.wiseflat.fr
+  |  |--frontend1.gra5.multivrack.infra.wiseflat.fr
+  |  |--frontend1.uk1.multivrack.infra.wiseflat.fr
   |--@infrastructures:
   |  |--@regions:
   |  |  |--@monoregion:
   |  |  |--@multiregion:
-  |  |  |  |--backend-vrack1.de1.multivrack.www.domain.com
-  |  |  |  |--backend-vrack1.gra5.multivrack.www.domain.com
-  |  |  |  |--backend-vrack1.uk1.multivrack.www.domain.com
-  |  |  |  |--backend1.de1.multivrack.www.domain.com
-  |  |  |  |--backend1.gra5.multivrack.www.domain.com
-  |  |  |  |--backend1.uk1.multivrack.www.domain.com
-  |  |  |  |--frontend1.de1.multivrack.www.domain.com
-  |  |  |  |--frontend1.gra5.multivrack.www.domain.com
-  |  |  |  |--frontend1.uk1.multivrack.www.domain.com
+  |  |  |  |--backend-vrack1.de1.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend-vrack1.gra5.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend-vrack1.uk1.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend1.de1.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend1.gra5.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend1.uk1.multivrack.infra.wiseflat.fr
+  |  |  |  |--frontend1.de1.multivrack.infra.wiseflat.fr
+  |  |  |  |--frontend1.gra5.multivrack.infra.wiseflat.fr
+  |  |  |  |--frontend1.uk1.multivrack.infra.wiseflat.fr
   |  |--@servers:
   |  |  |--@backend:
-  |  |  |  |--backend1.de1.multivrack.www.domain.com
-  |  |  |  |--backend1.gra5.multivrack.www.domain.com
-  |  |  |  |--backend1.uk1.multivrack.www.domain.com
+  |  |  |  |--backend1.de1.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend1.gra5.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend1.uk1.multivrack.infra.wiseflat.fr
   |  |  |--@backend_vrack:
-  |  |  |  |--backend-vrack1.de1.multivrack.www.domain.com
-  |  |  |  |--backend-vrack1.gra5.multivrack.www.domain.com
-  |  |  |  |--backend-vrack1.uk1.multivrack.www.domain.com
+  |  |  |  |--backend-vrack1.de1.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend-vrack1.gra5.multivrack.infra.wiseflat.fr
+  |  |  |  |--backend-vrack1.uk1.multivrack.infra.wiseflat.fr
   |  |  |--@frontend:
   |  |  |--@frontend_vrack:
-  |  |  |  |--frontend1.de1.multivrack.www.domain.com
-  |  |  |  |--frontend1.gra5.multivrack.www.domain.com
-  |  |  |  |--frontend1.uk1.multivrack.www.domain.com
+  |  |  |  |--frontend1.de1.multivrack.infra.wiseflat.fr
+  |  |  |  |--frontend1.gra5.multivrack.infra.wiseflat.fr
+  |  |  |  |--frontend1.uk1.multivrack.infra.wiseflat.fr
   |--@ungrouped:
   |  |--localhost
-  |--@www:
-  |  |--backend-vrack1.de1.multivrack.www.domain.com
-  |  |--backend-vrack1.gra5.multivrack.www.domain.com
-  |  |--backend-vrack1.uk1.multivrack.www.domain.com
-  |  |--backend1.de1.multivrack.www.domain.com
-  |  |--backend1.gra5.multivrack.www.domain.com
-  |  |--backend1.uk1.multivrack.www.domain.com
-  |  |--frontend1.de1.multivrack.www.domain.com
-  |  |--frontend1.gra5.multivrack.www.domain.com
-  |  |--frontend1.uk1.multivrack.www.domain.com
 ```
 </p>
 </details>
@@ -271,126 +269,42 @@ localhost | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-frontend1.de1.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+frontend1.gra5.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-frontend1.uk1.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+frontend1.uk1.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-frontend1.gra5.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+backend-vrack1.gra5.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-backend1.de1.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+backend1.uk1.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-backend1.gra5.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+backend-vrack1.uk1.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-backend-vrack1.gra5.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+backend1.gra5.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-backend1.uk1.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+frontend1.de1.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-backend-vrack1.de1.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+backend-vrack1.de1.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-backend-vrack1.uk1.multivrack.www.domain.com | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
+backend1.de1.multivrack.infra.wiseflat.fr | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
-```
-</p>
-</details>
-
-<details>
-<summary>Apt update/upgrade</summary>
-<p>
-
-```sh
-/home/ansible/ovhcloud-infrastructure/env/develop$ ansible-playbook ../../playbooks/upgrade.yml
-PLAY [apt-upgrade] *************************************************************************************************************
-
-TASK [Gathering Facts] *********************************************************************************************************
-ok: [frontend1.de1.multivrack.www.domain.com]
-ok: [backend1.de1.multivrack.www.domain.com]
-ok: [backend1.uk1.multivrack.www.domain.com]
-ok: [frontend1.uk1.multivrack.www.domain.com]
-ok: [frontend1.gra5.multivrack.www.domain.com]
-ok: [backend1.gra5.multivrack.www.domain.com]
-ok: [backend-vrack1.gra5.multivrack.www.domain.com]
-ok: [backend-vrack1.uk1.multivrack.www.domain.com]
-ok: [backend-vrack1.de1.multivrack.www.domain.com]
-
-TASK [apt | autoclean autoremove] **********************************************************************************************
-ok: [frontend1.de1.multivrack.www.domain.com]
-ok: [frontend1.gra5.multivrack.www.domain.com]
-ok: [backend1.de1.multivrack.www.domain.com]
-ok: [backend1.gra5.multivrack.www.domain.com]
-ok: [backend1.uk1.multivrack.www.domain.com]
-ok: [frontend1.uk1.multivrack.www.domain.com]
-ok: [backend-vrack1.gra5.multivrack.www.domain.com]
-ok: [backend-vrack1.de1.multivrack.www.domain.com]
-ok: [backend-vrack1.uk1.multivrack.www.domain.com]
-
-TASK [apt | upgrade] ***********************************************************************************************************
-ok: [frontend1.de1.multivrack.www.domain.com]
-ok: [frontend1.gra5.multivrack.www.domain.com]
-ok: [backend1.de1.multivrack.www.domain.com]
-ok: [backend1.uk1.multivrack.www.domain.com]
-ok: [backend1.gra5.multivrack.www.domain.com]
-ok: [frontend1.uk1.multivrack.www.domain.com]
-ok: [backend-vrack1.gra5.multivrack.www.domain.com]
-ok: [backend-vrack1.de1.multivrack.www.domain.com]
-ok: [backend-vrack1.uk1.multivrack.www.domain.com]
-
-PLAY RECAP *********************************************************************************************************************
-backend-vrack1.de1.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-backend-vrack1.gra5.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-backend-vrack1.uk1.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-backend1.de1.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-backend1.gra5.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-backend1.uk1.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-frontend1.de1.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-frontend1.gra5.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-frontend1.uk1.multivrack.www.domain.com : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-
-Playbook run took 0 days, 0 hours, 0 minutes, 37 seconds
 ```
 </p>
 </details>
@@ -461,24 +375,24 @@ All good !
 
 ## Last step : destroy everything
 
-* Setting `backends = 0` will destroy all instances connected to the Internal network.
-* Setting `backends_vrack = 0` will destroy all instances connected the vrack network.
-* Setting `frontends = 0` will destroy all frontend instances.
+* Setting `backends.nbinstances = 0` will destroy all instances connected to the Internal network.
+* Setting `backends_vrack.nbinstances = 0` will destroy all instances connected the vrack network.
+* Setting `frontends.nbinstances = 0` will destroy all frontend instances.
 
 Do it smoothly. It takes a lot of CPU ;-)
 
 ```sh
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt apply
+/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform apply -var-file="variables.tfvars"
 ```
 
 Finaly, destroy all other terraform resources
 
 ```sh
-/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terragrunt destroy
+/home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform destroy -var-file="variables.tfvars"
 ```
 
 # Troubleshooting
 
 * When you increase (or reduce) the number of instances, do it smoothly. It takes a lot of CPU.
-* If terragrunt fails, it is most of the time a network issue. Just launch `terragrunt apply` again.
+* If terraform fails, it is most of the time a network issue. Just launch `terraform apply` again.
 * If an Ansible playbook fails, same resolution.

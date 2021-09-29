@@ -18,7 +18,6 @@ resource "openstack_networking_network_v2" "lan_net" {
   ]
 }
 
-
 ## Network subnet of the frontend instances
 
 resource "openstack_networking_subnet_v2" "lan_subnet" {

@@ -165,6 +165,7 @@ module "frontend-0" {
   zone     = var.zone
 
   nbinstances = var.frontends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 0)
   image_name  = var.frontends.image
   flavor_name = var.frontends.flavor
@@ -172,8 +173,7 @@ module "frontend-0" {
   disk_size   = var.frontends.disk_size
   user_data   = data.template_file.frontend.template
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "frontend"
@@ -202,6 +202,7 @@ module "frontend-1" {
   zone     = var.zone
 
   nbinstances = var.frontends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 1)
   image_name  = var.frontends.image
   flavor_name = var.frontends.flavor
@@ -209,8 +210,7 @@ module "frontend-1" {
   disk_size   = var.frontends.disk_size
   user_data   = data.template_file.frontend.template
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "frontend"
@@ -239,6 +239,7 @@ module "frontend-2" {
   zone     = var.zone
 
   nbinstances = var.frontends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 2)
   image_name  = var.frontends.image
   flavor_name = var.frontends.flavor
@@ -246,8 +247,7 @@ module "frontend-2" {
   disk_size   = var.frontends.disk_size
   user_data   = data.template_file.frontend.template
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "frontend"
@@ -292,6 +292,7 @@ module "backend-0" {
   zone     = var.zone
 
   nbinstances = var.backends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 0)
   image_name  = var.backends.image
   flavor_name = var.backends.flavor
@@ -299,10 +300,9 @@ module "backend-0" {
   disk_size   = var.backends.disk_size
   user_data   = data.template_file.backend_0.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, 1, lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "backend"
@@ -347,6 +347,7 @@ module "backend-1" {
   zone     = var.zone
 
   nbinstances = var.backends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 1)
   image_name  = var.backends.image
   flavor_name = var.backends.flavor
@@ -354,10 +355,9 @@ module "backend-1" {
   disk_size   = var.backends.disk_size
   user_data   = data.template_file.backend_1.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, 1, lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "backend"
@@ -402,6 +402,7 @@ module "backend-2" {
   zone     = var.zone
 
   nbinstances = var.backends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 2)
   image_name  = var.backends.image
   flavor_name = var.backends.flavor
@@ -409,10 +410,9 @@ module "backend-2" {
   disk_size   = var.backends.disk_size
   user_data   = data.template_file.backend_2.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, 1, lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "backend"
@@ -458,6 +458,7 @@ module "backend-vrack-0" {
   zone     = var.zone
 
   nbinstances = var.backends_vrack.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 0)
   image_name  = var.backends_vrack.image
   flavor_name = var.backends_vrack.flavor
@@ -465,10 +466,9 @@ module "backend-vrack-0" {
   disk_size   = var.backends_vrack.disk_size
   user_data   = data.template_file.backendvrack_0.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, 1, lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "backend_vrack"
@@ -514,6 +514,7 @@ module "backend-vrack-1" {
   zone     = var.zone
 
   nbinstances = var.backends_vrack.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 1)
   image_name  = var.backends_vrack.image
   flavor_name = var.backends_vrack.flavor
@@ -521,10 +522,9 @@ module "backend-vrack-1" {
   disk_size   = var.backends_vrack.disk_size
   user_data   = data.template_file.backendvrack_1.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, 1, lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "backend_vrack"
@@ -570,6 +570,7 @@ module "backend-vrack-2" {
   zone     = var.zone
 
   nbinstances = var.backends_vrack.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 2)
   image_name  = var.backends_vrack.image
   flavor_name = var.backends_vrack.flavor
@@ -577,10 +578,9 @@ module "backend-vrack-2" {
   disk_size   = var.backends_vrack.disk_size
   user_data   = data.template_file.backendvrack_2.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, 1, lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "backend_vrack"

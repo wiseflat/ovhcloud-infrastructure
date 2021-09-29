@@ -10,6 +10,8 @@ terraform {
   }
 }
 
+// data "ovh_vracks" "attach" {}
+
 resource "ovh_vrack_cloudproject" "attach" {
   vrack_id   = var.vrack_id
   project_id = var.project_id
@@ -99,6 +101,7 @@ module "frontend" {
   zone     = var.zone
 
   nbinstances = var.frontends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 0)
   image_name  = var.frontends.image
   flavor_name = var.frontends.flavor
@@ -106,9 +109,8 @@ module "frontend" {
   disk_size   = var.frontends.disk_size
   user_data   = data.template_file.frontend.template
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
-
+  ansible = true
+  
   metadata = {
     role     = "frontend"
     location = "monoregion"
@@ -121,7 +123,7 @@ data "template_file" "backend" {
 output: { all: "| tee -a /var/log/cloud-init-output.log" }
 package_update: false
 ssh_authorized_keys:
-  ${var.ssh_public_key}
+  ${file(var.ssh_public_key)}
 write_files:
 -   content: |
       network:
@@ -152,6 +154,7 @@ module "backend" {
   zone     = var.zone
 
   nbinstances = var.backends.nbinstances
+  format      = var.format
   keypair     = element(tolist(module.region.keypair), 0)
   image_name  = var.backends.image
   flavor_name = var.backends.flavor
@@ -159,10 +162,9 @@ module "backend" {
   disk_size   = var.backends.disk_size
   user_data   = data.template_file.backend.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, 1, lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1), lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
 
-  working_dir   = var.working_dir
-  playbook_path = var.playbook_path
+  ansible = true
 
   metadata = {
     role     = "backend"
