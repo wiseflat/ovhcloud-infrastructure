@@ -14,13 +14,13 @@ locals {
 }
 
 resource "openstack_networking_secgroup_v2" "ingress" {
-  name        = "${var.name}-net"
-  description = "${var.name} net security group"
+  name        = "Ingress"
+  description = "Ingress security group"
 }
 
 resource "openstack_networking_secgroup_v2" "egress" {
-  name        = "${var.name}-lan"
-  description = "${var.name} lan security group"
+  name        = "Egress"
+  description = "Egress security group"
 }
 
 # resource "openstack_networking_secgroup_rule_v2" "port_filterd" {

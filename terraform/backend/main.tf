@@ -8,7 +8,7 @@ provider "openstack" {
 resource "openstack_networking_port_v2" "lan_port" {
   count = var.nbinstances
 
-  name           = format("%s%s.%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
+  name           = format("%s%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.zone.subdomain, var.zone.root)
   network_id     = var.lan_net.id
   admin_state_up = "true"
   fixed_ip {
@@ -42,7 +42,7 @@ data "openstack_images_image_v2" "default" {
 resource "openstack_compute_instance_v2" "instance" {
   count = var.nbinstances
 
-  name        = format("%s%s.%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
+  name        = format("%s%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.zone.subdomain, var.zone.root)
   image_id    = data.openstack_images_image_v2.default.id
   flavor_name = var.flavor_name
 
@@ -75,7 +75,7 @@ resource "null_resource" "ansible" {
   }
 
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend -e location=${var.metadata.location} -e server=backend -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e proxyjump=${format("%s%s.%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)} -e state=present"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend -e location=${var.metadata.location} -e server=backend -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e proxyjump=${format("%s%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.zone.subdomain, var.zone.root)} -e state=present"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {

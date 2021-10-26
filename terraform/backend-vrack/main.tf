@@ -29,7 +29,7 @@ data "openstack_images_image_v2" "default" {
 resource "openstack_compute_instance_v2" "instance" {
   count = var.nbinstances
 
-  name        = format("%s%s.%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
+  name        = format("%s%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.zone.subdomain, var.zone.root)
   image_id    = data.openstack_images_image_v2.default.id
   flavor_name = var.flavor_name
 
@@ -56,7 +56,7 @@ resource "null_resource" "ansible" {
   depends_on = [openstack_compute_instance_v2.instance, openstack_compute_volume_attach_v2.data]
 
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend_vrack -e location=${var.metadata.location} -e server=backend_vrack -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e hostname=${openstack_compute_instance_v2.instance[count.index].name} -e proxyjump=${format("%s%s.%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)} -e state=present"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend_vrack -e location=${var.metadata.location} -e server=backend_vrack -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e hostname=${openstack_compute_instance_v2.instance[count.index].name} -e proxyjump=${format("%s%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.zone.subdomain, var.zone.root)} -e state=present"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {

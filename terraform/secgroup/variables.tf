@@ -3,11 +3,6 @@ variable "region" {
   type        = string
 }
 
-variable "name" {
-  description = "name of blog. Used to forge subdomain"
-  type        = string
-}
-
 variable "restricted_ip" {
   description = "restricted_ip"
   type        = set(string)
