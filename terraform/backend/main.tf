@@ -75,7 +75,7 @@ resource "null_resource" "ansible" {
   }
 
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend -e location=${var.metadata.location} -e server=backend -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e proxyjump=${format("%s%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.zone.subdomain, var.zone.root)} -e state=present"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${var.zone.subdomain} -e section=backend -e location=${var.metadata.location} -e server=backend -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e proxyjump=${format("%s%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.zone.subdomain, var.zone.root)} -e state=present"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
@@ -105,7 +105,7 @@ resource "null_resource" "ansible-destroy" {
 
   provisioner "local-exec" {
     when        = destroy
-    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${self.triggers.subdomain} -e location=${self.triggers.location} -e server=backend -e section=backend -e ip=null -e proxyjump=null -e hostname=${self.triggers.hostname} -e state=absent"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${self.triggers.subdomain} -e location=${self.triggers.location} -e server=backend -e section=backend -e ip=null -e proxyjump=null -e hostname=${self.triggers.hostname} -e state=absent"
     working_dir = "${path.root}/../.."
   }
 }
