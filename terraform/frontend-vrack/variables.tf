@@ -39,10 +39,6 @@ variable "vrack_subnet" {
   description = "Multi region private subnet"
 }
 
-variable "vrack_fixed_ip" {
-  description = "Fixed ip of the vrack interface"
-}
-
 # Disk
 
 variable "disk" {

@@ -55,20 +55,25 @@ resource "null_resource" "ansible" {
 
   depends_on = [openstack_compute_instance_v2.instance, openstack_compute_volume_attach_v2.data]
 
+  triggers = {
+    hostname      = openstack_compute_instance_v2.instance[count.index].name
+    access_ip_v4      = openstack_compute_instance_v2.instance[count.index].access_ip_v4
+  }
+
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend_vrack -e location=${var.metadata.location} -e server=backend_vrack -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e hostname=${openstack_compute_instance_v2.instance[count.index].name} -e proxyjump=${format("%s%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.zone.subdomain, var.zone.root)} -e state=present"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend_vrack -e location=${var.metadata.location} -e server=backend_vrack -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e proxyjump=${format("%s%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.zone.subdomain, var.zone.root)} -e state=present"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/check-port.yml -l ${var.frontend_hostname} -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e checkport=22"
+    command     = "ansible-playbook playbooks/check-port.yml -l ${var.frontend_hostname} -e ip=${self.triggers.access_ip_v4} -e checkport=22"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/facts.yml -l ${openstack_compute_instance_v2.instance[count.index].name} -e region=${lower(var.region)} -e role=${var.metadata.role}"
+    command     = "ansible-playbook playbooks/facts.yml -l ${self.triggers.hostname} -e region=${lower(var.region)} -e role=${var.metadata.role}"
     working_dir = "${path.root}/../.."
   }
   # provisioner "local-exec" {
-  #   command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
+  #   command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${self.triggers.hostname}"
   #   working_dir = "${path.root}/../.."
   # }
 }
