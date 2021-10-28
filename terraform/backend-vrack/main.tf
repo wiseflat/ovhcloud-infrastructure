@@ -58,8 +58,8 @@ resource "null_resource" "ansible" {
   depends_on = [openstack_compute_instance_v2.instance, openstack_compute_volume_attach_v2.data]
 
   triggers = {
-    hostname      = openstack_compute_instance_v2.instance[count.index].name
-    access_ip_v4      = openstack_compute_instance_v2.instance[count.index].access_ip_v4
+    hostname     = openstack_compute_instance_v2.instance[count.index].name
+    access_ip_v4 = openstack_compute_instance_v2.instance[count.index].access_ip_v4
   }
 
   provisioner "local-exec" {

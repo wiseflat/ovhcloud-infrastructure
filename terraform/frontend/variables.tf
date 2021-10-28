@@ -101,4 +101,3 @@ variable "ansible" {
   type        = bool
   default     = false
 }
-

@@ -131,7 +131,7 @@ Source your OpenStack's RC file to set your environments variables:
 /home/ansible/ovhcloud-infrastructure/env/develop/live/multiregion-vrack$ terraform apply -var-file="variables.tfvars"
 ```
 
-Terraform may fails because your Openstack project do not use the same regions. Check it on [horizon](https://horizon.cloud.ovh.net). 
+Terraform may fails because your Openstack project do not use the same regions. Check it on [horizon](https://horizon.cloud.ovh.net).
 
 Edit `variables.tfvars` file in the same directory, which one contains some defaults values and override the `regions` variable, than execute again the last command.
 
@@ -148,7 +148,7 @@ If everything worked, at this step you will have security groups, networks, regi
 ## Second step : deploy frontends
 
 Setting `nbinstances = 1` will create 1 instance per region.
-Edit `variables.tfvars` file in the same directory: 
+Edit `variables.tfvars` file in the same directory:
 
 ```hcl
 frontends = {

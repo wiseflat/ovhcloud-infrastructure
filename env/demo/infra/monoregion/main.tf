@@ -110,7 +110,7 @@ module "frontend" {
   user_data   = data.template_file.frontend.template
 
   ansible = true
-  
+
   metadata = {
     role     = "frontend"
     location = "monoregion"
