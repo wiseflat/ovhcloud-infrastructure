@@ -29,6 +29,8 @@ data "openstack_images_image_v2" "default" {
 resource "openstack_compute_instance_v2" "instance" {
   count = var.nbinstances
 
+  depends_on = [var.ip_forward]
+
   name        = format("%s%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.zone.subdomain, var.zone.root)
   image_id    = data.openstack_images_image_v2.default.id
   flavor_name = var.flavor_name

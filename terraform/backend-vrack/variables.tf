@@ -22,7 +22,6 @@ variable "disk_size" {
   default     = 10
 }
 
-
 # Instance
 
 variable "nbinstances" {
@@ -86,4 +85,8 @@ variable "ansible" {
   description = "Enable ansible-playbook once instances are deployed"
   type        = bool
   default     = false
+}
+
+variable "ip_forward" {
+  description = "Ip froward dependency"
 }
