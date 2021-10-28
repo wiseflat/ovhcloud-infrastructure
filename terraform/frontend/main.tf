@@ -91,7 +91,7 @@ resource "null_resource" "ansible" {
   }
 
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${var.zone.subdomain} -e location=${var.metadata.location} -e server=frontend -e section=frontend -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e state=present"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${var.zone.subdomain} -e location=${var.metadata.location} -e region=${var.region} -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e state=present"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
@@ -107,7 +107,7 @@ resource "null_resource" "ansible" {
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/facts.yml -l ${self.triggers.hostname} -e region=${var.region} -e role=${var.metadata.role}"
+    command     = "ansible-playbook playbooks/facts.yml -l ${self.triggers.hostname} -e region=${var.region} -e location=${var.metadata.location}"
     working_dir = "${path.root}/../.."
   }
 }
@@ -116,14 +116,15 @@ resource "null_resource" "ansible-destroy" {
   count = var.ansible ? var.nbinstances : 0
 
   triggers = {
-    location      = var.metadata.location
-    hostname      = openstack_compute_instance_v2.instance[count.index].name
-    subdomain     = var.zone.subdomain
+    location  = var.metadata.location
+    region    = var.region
+    hostname  = openstack_compute_instance_v2.instance[count.index].name
+    subdomain = var.zone.subdomain
   }
 
   provisioner "local-exec" {
     when        = destroy
-    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${self.triggers.subdomain} -e location=${self.triggers.location} -e server=frontend -e section=frontend -e ip=null -e hostname=${self.triggers.hostname} -e state=absent"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${self.triggers.subdomain} -e location=${self.triggers.location} -e region=${self.triggers.region} -e server=frontend -e section=frontend -e ip=null -e hostname=${self.triggers.hostname} -e state=absent"
     working_dir = "${path.root}/../.."
   }
 }
