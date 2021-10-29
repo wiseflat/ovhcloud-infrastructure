@@ -71,7 +71,7 @@ resource "openstack_compute_instance_v2" "instance" {
 
   network {
     name        = var.vrack_net.name
-    fixed_ip_v4 = cidrhost(var.vrack_subnet.network, count.index + 1)
+    fixed_ip_v4 = cidrhost(var.vrack_subnet.network, count.index + var.vrack_offset)
   }
 
   lifecycle {

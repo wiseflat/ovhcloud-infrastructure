@@ -39,6 +39,10 @@ variable "vrack_subnet" {
   description = "Multi region private subnet"
 }
 
+variable "vrack_offset" {
+  description = "Vrack Offset to compute frontend's Ip address"
+}
+
 # Disk
 
 variable "disk" {
