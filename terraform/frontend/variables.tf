@@ -12,6 +12,8 @@ variable "region" {
 
 variable "ext_net" {
   description = "External network"
+  default     = "Ext-Net"
+  type        = string
 }
 
 variable "lan_net" {
@@ -101,4 +103,3 @@ variable "ansible" {
   type        = bool
   default     = false
 }
-

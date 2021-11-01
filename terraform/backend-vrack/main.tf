@@ -29,7 +29,9 @@ data "openstack_images_image_v2" "default" {
 resource "openstack_compute_instance_v2" "instance" {
   count = var.nbinstances
 
-  name        = format("%s%s.%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)
+  depends_on = [var.ip_forward]
+
+  name        = format("%s%s.%s.%s.%s", var.hostname, format(var.format, count.index + 1), lower(var.region), var.zone.subdomain, var.zone.root)
   image_id    = data.openstack_images_image_v2.default.id
   flavor_name = var.flavor_name
 
@@ -55,20 +57,25 @@ resource "null_resource" "ansible" {
 
   depends_on = [openstack_compute_instance_v2.instance, openstack_compute_volume_attach_v2.data]
 
+  triggers = {
+    hostname     = openstack_compute_instance_v2.instance[count.index].name
+    access_ip_v4 = openstack_compute_instance_v2.instance[count.index].access_ip_v4
+  }
+
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${var.zone.subdomain} -e section=backend_vrack -e location=${var.metadata.location} -e server=backend_vrack -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e hostname=${openstack_compute_instance_v2.instance[count.index].name} -e proxyjump=${format("%s%s.%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.name, var.zone.subdomain, var.zone.root)} -e state=present"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${var.zone.subdomain} -e location=${var.metadata.location} -e region=${var.region} -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e proxyjump=${format("%s%s.%s.%s.%s", "frontend", format(var.format, 1), lower(var.region), var.zone.subdomain, var.zone.root)} -e state=present"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/check-port.yml -l ${var.frontend_hostname} -e ip=${openstack_compute_instance_v2.instance[count.index].access_ip_v4} -e checkport=22"
+    command     = "ansible-playbook playbooks/check-port.yml -l ${var.frontend_hostname} -e ip=${self.triggers.access_ip_v4} -e checkport=22"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook playbooks/facts.yml -l ${openstack_compute_instance_v2.instance[count.index].name} -e region=${lower(var.region)} -e role=${var.metadata.role}"
+    command     = "ansible-playbook playbooks/facts.yml -l ${self.triggers.hostname} -e region=${var.region} -e location=${var.metadata.location}"
     working_dir = "${path.root}/../.."
   }
   # provisioner "local-exec" {
-  #   command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
+  #   command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${self.triggers.hostname}"
   #   working_dir = "${path.root}/../.."
   # }
 }
@@ -79,14 +86,15 @@ resource "null_resource" "ansible-destroy" {
   depends_on = [openstack_compute_instance_v2.instance, openstack_compute_volume_attach_v2.data]
 
   triggers = {
-    location      = var.metadata.location
-    hostname      = openstack_compute_instance_v2.instance[count.index].name
-    subdomain     = var.zone.subdomain
+    location  = var.metadata.location
+    region    = var.region
+    hostname  = openstack_compute_instance_v2.instance[count.index].name
+    subdomain = var.zone.subdomain
   }
 
   provisioner "local-exec" {
     when        = destroy
-    command     = "ansible-playbook playbooks/ssh-config.yml -e project=${self.triggers.subdomain} -e location=${self.triggers.location} -e server=backend_vrack -e section=backend_vrack -e ip=null -e proxyjump=null -e hostname=${self.triggers.hostname} -e state=absent"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${self.triggers.subdomain} -e location=${self.triggers.location} -e region=${self.triggers.region} -e ip=null -e proxyjump=null -e hostname=${self.triggers.hostname} -e state=absent"
     working_dir = "${path.root}/../.."
   }
 }

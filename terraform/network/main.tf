@@ -34,16 +34,3 @@ resource "openstack_networking_subnet_v2" "lan_subnet" {
     end   = cidrhost(var.lan_net, -2)
   }
 }
-
-## Network subnet of the backend instances
-
-resource "ovh_cloud_project_network_private_subnet" "vrack_subnet" {
-  project_id = var.project_id
-  network_id = var.vrack_net.id
-  region     = var.region
-  start      = var.vrack_subnet.start
-  end        = var.vrack_subnet.end
-  network    = var.vrack_subnet.network
-  dhcp       = true
-  no_gateway = true
-}

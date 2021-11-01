@@ -1,6 +1,7 @@
 variable "name" {
   description = "Name to be used on all the resources as identifier"
   type        = string
+  default     = "vrack-Net"
 }
 
 variable "project_id" {
@@ -21,9 +22,4 @@ variable "vlan_id" {
 
 variable "cloud_project" {
   description = "cloud project"
-}
-
-variable "ssh_public_key" {
-  description = "SSH public key"
-  type        = string
 }

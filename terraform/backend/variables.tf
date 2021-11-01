@@ -79,7 +79,6 @@ variable "user_data" {
   description = "A user data cloud configuration"
 }
 
-
 # Operations
 
 variable "frontend_hostname" {
@@ -90,4 +89,8 @@ variable "ansible" {
   description = "Enable ansible-playbook once instances are deployed"
   type        = bool
   default     = false
+}
+
+variable "ip_forward" {
+  description = "Ip froward dependency"
 }

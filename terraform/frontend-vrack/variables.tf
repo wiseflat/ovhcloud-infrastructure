@@ -12,6 +12,8 @@ variable "region" {
 
 variable "ext_net" {
   description = "External network"
+  default     = "Ext-Net"
+  type        = string
 }
 
 variable "lan_net" {
@@ -37,8 +39,8 @@ variable "vrack_subnet" {
   description = "Multi region private subnet"
 }
 
-variable "vrack_fixed_ip" {
-  description = "Fixed ip of the vrack interface"
+variable "vrack_offset" {
+  description = "Vrack Offset to compute frontend's Ip address"
 }
 
 # Disk

@@ -300,7 +300,7 @@ module "backend-0" {
   disk_size   = var.backends.disk_size
   user_data   = data.template_file.backend_0.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1), lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
 
   ansible = true
 
@@ -355,7 +355,7 @@ module "backend-1" {
   disk_size   = var.backends.disk_size
   user_data   = data.template_file.backend_1.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1), lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
 
   ansible = true
 
@@ -410,7 +410,7 @@ module "backend-2" {
   disk_size   = var.backends.disk_size
   user_data   = data.template_file.backend_2.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1), lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
 
   ansible = true
 
@@ -466,7 +466,7 @@ module "backend-vrack-0" {
   disk_size   = var.backends_vrack.disk_size
   user_data   = data.template_file.backendvrack_0.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1), lower(element(tolist(var.regions), 0)), var.name, var.zone.subdomain, var.zone.root)
 
   ansible = true
 
@@ -522,7 +522,7 @@ module "backend-vrack-1" {
   disk_size   = var.backends_vrack.disk_size
   user_data   = data.template_file.backendvrack_1.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1), lower(element(tolist(var.regions), 1)), var.name, var.zone.subdomain, var.zone.root)
 
   ansible = true
 
@@ -578,7 +578,7 @@ module "backend-vrack-2" {
   disk_size   = var.backends_vrack.disk_size
   user_data   = data.template_file.backendvrack_2.template
 
-  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1),lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
+  frontend_hostname = format("%s%s.%s.%s.%s.%s", var.frontends.hostname, format(var.format, 1), lower(element(tolist(var.regions), 2)), var.name, var.zone.subdomain, var.zone.root)
 
   ansible = true
 
