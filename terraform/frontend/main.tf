@@ -116,15 +116,16 @@ resource "null_resource" "ansible-destroy" {
   count = var.ansible ? var.nbinstances : 0
 
   triggers = {
-    location  = var.metadata.location
-    region    = var.region
-    hostname  = openstack_compute_instance_v2.instance[count.index].name
-    subdomain = var.zone.subdomain
+    location     = var.metadata.location
+    region       = var.region
+    hostname     = openstack_compute_instance_v2.instance[count.index].name
+    access_ip_v4 = openstack_compute_instance_v2.instance[count.index].access_ip_v4
+    subdomain    = var.zone.subdomain
   }
 
   provisioner "local-exec" {
     when        = destroy
-    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${self.triggers.subdomain} -e location=${self.triggers.location} -e region=${self.triggers.region} -e server=frontend -e section=frontend -e ip=null -e hostname=${self.triggers.hostname} -e state=absent"
+    command     = "ansible-playbook playbooks/ssh-config.yml -e subdomain=${self.triggers.subdomain} -e location=${self.triggers.location} -e region=${self.triggers.region} -e server=frontend -e section=frontend -e ip=${self.triggers.access_ip_v4} -e hostname=${self.triggers.hostname} -e state=absent"
     working_dir = "${path.root}/../.."
   }
 }
