@@ -98,10 +98,10 @@ resource "null_resource" "ansible" {
     command     = "ansible-playbook playbooks/check-port.yml -l localhost -e ip=${self.triggers.access_ip_v4} -e checkport=22"
     working_dir = "${path.root}/../.."
   }
-  # provisioner "local-exec" {
-  #   command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${openstack_compute_instance_v2.instance[count.index].name}"
-  #   working_dir = var.working_dir
-  # }
+  provisioner "local-exec" {
+    command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${self.triggers.hostname}"
+    working_dir = "${path.root}/../.."
+  }
   provisioner "local-exec" {
     command     = "ansible-playbook playbooks/iptables.yml -l ${self.triggers.hostname}"
     working_dir = "${path.root}/../.."

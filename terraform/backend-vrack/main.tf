@@ -71,13 +71,13 @@ resource "null_resource" "ansible" {
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
+    command     = "ansible-playbook check-cloudinit.yml -l ${self.triggers.hostname}"
+    working_dir = "${path.root}/../.."
+  }
+  provisioner "local-exec" {
     command     = "ansible-playbook playbooks/facts.yml -l ${self.triggers.hostname} -e region=${var.region} -e location=${var.metadata.location}"
     working_dir = "${path.root}/../.."
   }
-  # provisioner "local-exec" {
-  #   command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${self.triggers.hostname}"
-  #   working_dir = "${path.root}/../.."
-  # }
 }
 
 resource "null_resource" "ansible-destroy" {
