@@ -85,7 +85,7 @@ resource "null_resource" "ansible" {
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
-    command     = "ansible-playbook check-cloudinit.yml -l ${self.triggers.hostname}"
+    command     = "ansible-playbook playbooks/check-cloudinit.yml -l ${self.triggers.hostname}"
     working_dir = "${path.root}/../.."
   }
   provisioner "local-exec" {
